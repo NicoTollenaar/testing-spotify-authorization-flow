@@ -20,6 +20,7 @@ const credentials = {
   redirectUri: redirect_uri
 }
 const spotifyApi = new SpotifyWebApi(credentials);
+let choice = "";
 
 
 function generateRandomString (length) {
@@ -82,7 +83,13 @@ app.get("/callback", async (req, res)=> {
       spotifyApi.setAccessToken(response.data.access_token);
       spotifyApi.setRefreshToken(response.data.refresh_token);
       console.log("spotifyApi: ", spotifyApi);
-      res.json(response.data);
+        if (choice === "userProfile") {
+        res.redirect("/user-profile");
+      } else if (choice === "playLists") {
+        res.redirect("/playlists");
+      } else {
+        res.send(`Something went wrong! Choice === ${choice}`);
+      }
     } catch(err) {
       console.log("Error in axios catch, logging keys of error: ", Object.keys(err));
     }
@@ -106,13 +113,15 @@ app.get("/refresh-token", async (req, res)=> {
     const response = await axios.post("https://accounts.spotify.com/api/token", postDataInURLFormat, postOptions);
     console.log("Axious response.data on refresh: ", response.data);
     spotifyApi.setAccessToken(response.data.access_token);
-    res.json(response.data);
+    res.sendFile(__dirname + "/public/html/index.html");
   } catch(err) {
     console.log("Error in axios catch, logging keys of error: ", err);
   }
 });
 
-app.get("/user-info", async (req, res) => {
+app.get("/user-profile", async (req, res) => {
+  choice = req.query.what;
+  console.log("req.query: ", req.query);
   if (spotifyApi._credentials.accessToken) {
     try {
       let response = await axios.get("https://api.spotify.com/v1/me", { headers: {'Authorization': 'Bearer ' + spotifyApi._credentials.accessToken}});
@@ -126,6 +135,7 @@ app.get("/user-info", async (req, res) => {
 });
 
 app.get("/playlists", async (req, res)=> {
+  choice = req.query.what;
   let userId = "";
   if (spotifyApi._credentials.accessToken) {
     try {
@@ -137,8 +147,14 @@ app.get("/playlists", async (req, res)=> {
       console.log(err);
     }
   } else {
-    res.sendFile(__dirname + "/public/html/index.html");
+    res.redirect("/login");
   }
+});
+
+app.get("/revoke-access", (req, res)=>{
+    spotifyApi._credentials.accessToken = "";
+    spotifyApi._credentials.refreshToken = "";
+    res.sendFile(__dirname + "/public/html/index.html");
 });
 
 

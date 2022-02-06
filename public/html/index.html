@@ -9,9 +9,15 @@
   <title>Spotify Auth Attempt</title>
 </head>
 <body>
-  <h1>Spotify authentication attempt</h1>
-  <a href="/login">
-    <button type="button" class="btn btn-primary btn-lg">See your Spotify User Profile</button>
+  <h1>Spotify basic authentication flow</h1>
+  <a href="/user-profile/?what=userProfile">
+    <button type="button" class="btn btn-primary btn-lg">See your User Profile</button>
+  </a>
+  <a href="/playlists/?what=playLists">
+    <button type="button" class="btn btn-primary btn-lg">See your Personal Playlists</button>
+  </a>
+  <a href="/revoke-access">
+    <button type="button" class="btn btn-primary btn-lg">Revoke Access</button>
   </a>
   <script src="../js/index.js"></script>
 </body>
